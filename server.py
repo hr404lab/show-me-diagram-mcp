@@ -133,7 +133,7 @@ def gantt_chart(
     }
 
 
-# ---------- 안내 페이지 (MCP 엔드포인트는 /mcp) ----------
+# ---------- 안내 페이지 ----------
 from starlette.requests import Request  # noqa: E402
 from starlette.responses import HTMLResponse, JSONResponse  # noqa: E402
 
@@ -144,15 +144,13 @@ code{background:#f3f4f6;padding:2px 6px;border-radius:4px}.ok{color:#1a7f37;font
 @media(prefers-color-scheme:dark){body{background:#0d1117;color:#e6edf3}code{background:#161b22}.ok{color:#3fb950}}</style></head>
 <body><h1>show-me-diagram-mcp</h1><p class="ok">● running</p>
 <p>Remote MCP server that renders Mermaid diagrams from natural-language prompts.</p>
-<p>MCP endpoint: <code>__URL__/mcp</code></p>
 <p>Tools: <code>render_mermaid</code> <code>make_flowchart</code> <code>gantt_chart</code></p>
 <p><a href="https://github.com/hr404lab/show-me-diagram-mcp">GitHub</a></p></body></html>"""
 
 
 @mcp.custom_route("/", methods=["GET"], include_in_schema=False)
 async def landing(request: Request) -> HTMLResponse:
-    base = f"{request.url.scheme}://{request.url.netloc}"
-    return HTMLResponse(LANDING.replace("__URL__", base))
+    return HTMLResponse(LANDING)
 
 
 @mcp.custom_route("/health", methods=["GET"], include_in_schema=False)
