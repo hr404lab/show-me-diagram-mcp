@@ -160,5 +160,16 @@ async def health(request: Request) -> JSONResponse:
     return JSONResponse({"status": "ok", "tools": ["render_mermaid", "make_flowchart", "gantt_chart"]})
 
 
+# ---------- ASGI 앱 (Vercel이 이 파일의 `app`을 자동 인식) ----------
+# 서버리스는 요청마다 인스턴스가 바뀔 수 있어 stateless 모드로 띄운다.
+from fastapi import FastAPI  # noqa: E402
+
+mcp_app = mcp.http_app(path="/mcp", stateless_http=True, json_response=True)
+app = FastAPI(title="show-me-diagram-mcp", lifespan=mcp_app.lifespan, docs_url=None, redoc_url=None)
+app.mount("/", mcp_app)  # /, /health, /mcp 모두 mcp_app이 처리
+
+
 if __name__ == "__main__":
-    mcp.run(transport="http", host="0.0.0.0", port=8000)
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)

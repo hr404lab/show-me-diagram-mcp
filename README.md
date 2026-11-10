@@ -13,22 +13,21 @@ AI에게 말로 설명하면 렌더링해주는 Mermaid 다이어그램 MCP 서�
 ## 구조
 ```
 show-me-diagram-mcp/
-├─ server.py               # MCP 서버·도구 정의
-├─ api/index.py            # Vercel 진입점 (ASGI app, /mcp)
+├─ server.py               # MCP 서버·도구 정의 + ASGI `app` (Vercel 자동 인식)
 ├─ diagram_tools/
 │  ├─ mermaid.py           # 소스 정리, mermaid.ink URL 생성
 │  ├─ flowchart.py         # 순서도 설계 규칙 → Mermaid
 │  └─ gantt.py             # 작업일 계산, 의존성 추정, SVG
 ├─ tests/test_tools.py
-├─ requirements.txt
-└─ vercel.json
+└─ requirements.txt
 ```
+엔드포인트: `/` 안내 페이지 · `/health` 상태 확인 · `/mcp` MCP (Streamable HTTP, stateless)
 
 ## 로컬 실행
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-python tests/test_tools.py      # 도구 4개 테스트
+python tests/test_tools.py      # 테스트 4개
 python server.py                # http://localhost:8000/mcp
 ```
 
