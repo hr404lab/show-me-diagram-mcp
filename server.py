@@ -6,7 +6,7 @@
 - gantt_chart    : Task 일정 → 작업일 계산 + SVG + 이미지 URL    (gantt-svg 스킬)
 
 로컬 실행 : python server.py            → http://localhost:8000/mcp
-Vercel     : api/index.py 가 ASGI 앱을 노출
+배포       : 환경변수 MCP_SECRET 설정 시 /mcp/<MCP_SECRET> 로만 MCP 접속 가능 (아래 '비밀 경로' 참고)
 """
 from __future__ import annotations
 
@@ -155,16 +155,47 @@ async def landing(request: Request) -> HTMLResponse:
 
 @mcp.custom_route("/health", methods=["GET"], include_in_schema=False)
 async def health(request: Request) -> JSONResponse:
-    return JSONResponse({"status": "ok", "tools": ["render_mermaid", "make_flowchart", "gantt_chart"]})
+    return JSONResponse({
+        "status": "ok",
+        "mcp": "enabled" if MCP_PATH else "disabled (MCP_SECRET not set)",
+        "tools": ["render_mermaid", "make_flowchart", "gantt_chart"],
+    })
 
+
+# ---------- 비밀 경로 ----------
+# MCP 엔드포인트를 /mcp/<MCP_SECRET> 으로만 연다. 비밀값은 환경변수에만 두고 코드·저장소에 남기지 않는다.
+# - MCP_SECRET 설정됨           → /mcp/<MCP_SECRET>  (그 외 /mcp 경로는 404)
+# - 미설정 + 배포 환경(Vercel)   → MCP 비활성화(fail closed): 실수로 공개되는 것을 막는다
+# - 미설정 + 로컬                → /mcp  (개발 편의)
+import os  # noqa: E402
+import re as _re  # noqa: E402
+
+
+def _mcp_path() -> str | None:
+    secret = os.environ.get("MCP_SECRET", "").strip()
+    if secret:
+        if len(secret) < 16 or not _re.fullmatch(r"[A-Za-z0-9_-]+", secret):
+            raise RuntimeError("MCP_SECRET은 16자 이상, 영문·숫자·-·_ 만 사용하세요.")
+        return f"/mcp/{secret}"
+    if os.environ.get("VERCEL"):
+        return None
+    return "/mcp"
+
+
+MCP_PATH = _mcp_path()
 
 # ---------- ASGI 앱 (Vercel이 이 파일의 `app`을 자동 인식) ----------
 # 서버리스는 요청마다 인스턴스가 바뀔 수 있어 stateless 모드로 띄운다.
 from fastapi import FastAPI  # noqa: E402
 
-mcp_app = mcp.http_app(path="/mcp", stateless_http=True, json_response=True)
+# MCP 비활성화 시에도 /, /health 는 동작하도록 앱은 만들되, MCP 경로는 추측 불가한 임의값으로 둔다.
+mcp_app = mcp.http_app(
+    path=MCP_PATH or f"/mcp/disabled-{os.urandom(16).hex()}",
+    stateless_http=True,
+    json_response=True,
+)
 app = FastAPI(title="show-me-diagram-mcp", lifespan=mcp_app.lifespan, docs_url=None, redoc_url=None)
-app.mount("/", mcp_app)  # /, /health, /mcp 모두 mcp_app이 처리
+app.mount("/", mcp_app)  # /, /health, MCP 경로 모두 mcp_app이 처리
 
 
 if __name__ == "__main__":

@@ -68,3 +68,5 @@ pip install -r requirements.txt
 python tests/test_tools.py      # 테스트 5개
 python server.py                # http://localhost:8000/mcp
 ```
+
+배포 시에는 환경변수 `MCP_SECRET`(16자 이상)을 설정해야 MCP가 열리며, 엔드포인트는 `/mcp/<MCP_SECRET>`이 된다. 미설정이면 배포 환경에서 MCP는 비활성화된다.
