@@ -133,5 +133,32 @@ def gantt_chart(
     }
 
 
+# ---------- 안내 페이지 (MCP 엔드포인트는 /mcp) ----------
+from starlette.requests import Request  # noqa: E402
+from starlette.responses import HTMLResponse, JSONResponse  # noqa: E402
+
+LANDING = """<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>show-me-diagram-mcp</title>
+<style>body{font-family:system-ui,-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;max-width:640px;margin:48px auto;padding:0 16px;line-height:1.6;color:#1f2328;background:#fff}
+code{background:#f3f4f6;padding:2px 6px;border-radius:4px}.ok{color:#1a7f37;font-weight:600}
+@media(prefers-color-scheme:dark){body{background:#0d1117;color:#e6edf3}code{background:#161b22}.ok{color:#3fb950}}</style></head>
+<body><h1>show-me-diagram-mcp</h1><p class="ok">● running</p>
+<p>Remote MCP server that renders Mermaid diagrams from natural-language prompts.</p>
+<p>MCP endpoint: <code>__URL__/mcp</code></p>
+<p>Tools: <code>render_mermaid</code> <code>make_flowchart</code> <code>gantt_chart</code></p>
+<p><a href="https://github.com/hr404lab/show-me-diagram-mcp">GitHub</a></p></body></html>"""
+
+
+@mcp.custom_route("/", methods=["GET"], include_in_schema=False)
+async def landing(request: Request) -> HTMLResponse:
+    base = f"{request.url.scheme}://{request.url.netloc}"
+    return HTMLResponse(LANDING.replace("__URL__", base))
+
+
+@mcp.custom_route("/health", methods=["GET"], include_in_schema=False)
+async def health(request: Request) -> JSONResponse:
+    return JSONResponse({"status": "ok", "tools": ["render_mermaid", "make_flowchart", "gantt_chart"]})
+
+
 if __name__ == "__main__":
     mcp.run(transport="http", host="0.0.0.0", port=8000)
