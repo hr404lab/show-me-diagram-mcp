@@ -35,13 +35,13 @@ python server.py                # http://localhost:8000/mcp
 ## Vercel 배포
 1. GitHub(hr404lab)에 새 저장소로 push
 2. vercel.com → Add New Project → 저장소 선택 → Deploy (설정 변경 없음)
-3. 엔드포인트: `https://<프로젝트>.vercel.app/mcp`
+3. 엔드포인트: `https://show-me-diagram-mcp.vercel.app/mcp`
 
 ## 연결
 - **ChatGPT**: Settings → Security and login → Developer mode 켜기 → Plugins `+` → URL 입력 → 새 채팅에서 `+` → Developer mode → 앱 선택. (Plus 이상, 웹 전용 베타)
 - **Claude**: 설정 → 커넥터 → 커스텀 커넥터 추가 → URL 입력
 - **Gemini 앱**: 설정 → Connected Apps → Custom apps → Add a custom app → URL 입력 (웹에서 추가, 모바일 앱에도 반영)
-- **Gemini CLI**: `~/.gemini/settings.json`의 `mcpServers`에 `"show-me-diagram": {"httpUrl": "https://<프로젝트>.vercel.app/mcp"}` 추가
+- **Gemini CLI**: `~/.gemini/settings.json`의 `mcpServers`에 `"show-me-diagram": {"httpUrl": "https://show-me-diagram-mcp.vercel.app/mcp"}` 추가
 - **젠스파크**: Skills → Connectors에서 커스텀 MCP 추가 메뉴 확인 (공식 문서에 절차 미기재)
 - 각 서비스의 지침(Custom GPT Instructions 등)에 Claude 스킬 본문을 요약해 붙이면 결과 형식이 맞춰진다.
 
