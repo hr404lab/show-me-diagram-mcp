@@ -49,7 +49,23 @@ def clean_source(source: str, diagram_type: str | None = None) -> str:
         if not t:
             raise ValueError("다이어그램 유형을 알 수 없습니다. diagram_type을 지정하거나 소스 첫 줄에 선언하세요.")
         s = f"{t}\n{s}"
+    _check_sankey(s)
     return s
+
+
+def _check_sankey(s: str) -> None:
+    """Mermaid sankey 파서는 라벨에 ASCII만 허용한다(따옴표·문자코드로도 우회 불가, Mermaid 11 기준).
+    한글 등이 있으면 원인과 대안을 담은 오류를 낸다."""
+    lines = [ln for ln in s.splitlines() if ln.strip() and not ln.strip().startswith("%%")]
+    if not lines or not lines[0].strip().startswith("sankey"):
+        return
+    bad = sorted({ch for ln in lines[1:] for ch in ln if ord(ch) > 127})
+    if bad:
+        raise ValueError(
+            "Mermaid sankey는 라벨에 영문·숫자(ASCII)만 지원합니다(한글 불가). "
+            "라벨을 영문으로 바꾸거나, 한글이 꼭 필요하면 D3 등으로 직접 그리세요. "
+            f"문제 문자 예: {''.join(bad[:10])}"
+        )
 
 
 def _b64url(text: str) -> str:

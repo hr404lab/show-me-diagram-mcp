@@ -98,7 +98,7 @@ def render_gantt_svg(
     while m <= E:
         nm = date(m.year + (m.month == 12), m.month % 12 + 1, 1)
         ms, me = max(m, S), min(nm - timedelta(1), E)
-        o.append(f'<line x1="{x(ms):.2f}" y1="{top - 50}" x2="{x(ms):.2f}" y2="{top + rows_h}" stroke="#BFC4CC"/>')
+        o.append(f'<line x1="{x(ms):.2f}" y1="{top - 42}" x2="{x(ms):.2f}" y2="{top + rows_h}" stroke="#BFC4CC"/>')
         o.append(
             f'<text x="{(x(ms) + x(me) + dw) / 2:.2f}" y="{top - 34}" font-size="13" font-weight="600" fill="#333" '
             f'text-anchor="middle">{m.month}월 ({workdays(ms, me, holidays)}일)</text>'
@@ -108,7 +108,7 @@ def render_gantt_svg(
         d = S + timedelta(i)
         if d.weekday() == 0:
             o.append(f'<text x="{x(d) + 1:.2f}" y="{top - 6}" font-size="9" fill="#888">{d.day}</text>')
-    o.append(f'<line x1="{X1}" y1="{top - 50}" x2="{X1}" y2="{top + rows_h}" stroke="#BFC4CC"/>')
+    o.append(f'<line x1="{X1}" y1="{top - 42}" x2="{X1}" y2="{top + rows_h}" stroke="#BFC4CC"/>')
     o.append(f'<text x="30" y="{top - 10}" font-size="12" font-weight="700" fill="#555">Task</text>')
     o.append(f'<text x="{L - 12}" y="{top - 10}" font-size="12" font-weight="700" fill="#555" text-anchor="end">작업일</text>')
 
